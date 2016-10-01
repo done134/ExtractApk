@@ -19,7 +19,6 @@ public class AppUtils {
         } else {
             File f = new File(imgPath);
             if (f != null && f.exists() && f.isFile()) {
-                intent.setType("image/png");
                 Uri u = Uri.fromFile(f);
                 intent.putExtra(Intent.EXTRA_STREAM, u);
             }

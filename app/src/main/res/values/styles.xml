@@ -17,4 +17,14 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="Bottom_Text_Style" >
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:drawablePadding">20dp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:onClick">onClick</item>
+    </style>
+
+
 </resources>

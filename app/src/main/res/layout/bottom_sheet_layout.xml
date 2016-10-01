@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    style="@style/Theme.Design.Light.BottomSheetDialog"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/extract_apk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@android:drawable/ic_menu_compass"
+        android:text="提取apk"
+        style="@style/Bottom_Text_Style"/>
+    <TextView
+        android:id="@+id/share_apk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@android:drawable/ic_menu_share"
+        android:text="发送到"
+        style="@style/Bottom_Text_Style"/>
+
+    <TextView
+        android:id="@+id/uninstall_app"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@android:drawable/ic_menu_delete"
+        android:text="卸载该应用"
+        style="@style/Bottom_Text_Style"/>
+
+    <TextView
+        android:id="@+id/open_app"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@android:drawable/star_on"
+        android:text="打开apk"
+        style="@style/Bottom_Text_Style"/>
+
+
+</LinearLayout>

@@ -4,10 +4,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AlertDialog;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialog;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,10 +19,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.done.extractapk.adapter.AppListAdapter;
 import com.done.extractapk.entity.AppInfo;
+import com.done.extractapk.utils.AppUtils;
 import com.done.extractapk.utils.FileUtils;
 
 import java.io.File;
@@ -33,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     List<PackageInfo> packages;
     RecyclerView mRecyclerView;
     AppListAdapter appListAdapter;
+    AppInfo appInfo;
+    BottomSheetDialog bottomSheetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,37 +58,13 @@ public class MainActivity extends AppCompatActivity {
         appListAdapter.setOnItemClickListener(new AppListAdapter.OnRecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View view, AppInfo data) {
-
-                String newPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + data.appName + ".apk";
-                if (FileUtils.copyFile(data.path,newPath)) {
-                    //打开文件管理器
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    File file = new File(newPath);
-                    intent.setDataAndType(Uri.fromFile(file), "file/*");
-                    startActivity(intent);
-                }
+                if (appInfo != null)
+                    appInfo = null;
+                appInfo = data;
+                showBottomSheet();
             }
         });
         mRecyclerView.setAdapter(appListAdapter);
-/*
-
-        if (FileUtils.copyApkFromAssets(this, "base.apk")){
-            AlertDialog.Builder m = new AlertDialog.Builder(this)
-                    .setIcon(R.mipmap.ic_launcher).setMessage("是否安装？")
-                    .setIcon(R.mipmap.ic_launcher)
-                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.apk"),
-                                    "application/vnd.android.package-archive");
-                            startActivity(intent);
-                        }
-                    });
-            m.show();
-        }
-*/
 
     }
 
@@ -117,6 +100,56 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * 弹出底部菜单
+     */
+    private void showBottomSheet() {
+
+        bottomSheetDialog = new BottomSheetDialog(this);
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_layout);
+        bottomSheetDialog.setCanceledOnTouchOutside(true);
+        bottomSheetDialog.setTitle("操作");
+//        bottomSheetDialog.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,R.mipmap.ic_launcher);
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                appInfo = null;
+            }
+        });
+        bottomSheetDialog.show();
+    }
+
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.extract_apk:
+                String newPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + appInfo.appName + ".apk";
+                if (FileUtils.copyFile(appInfo.path,newPath)) {
+                    Toast.makeText(this, "安装包已复制到：" + newPath, Toast.LENGTH_LONG).show();
+                }else {
+                    Toast.makeText(this, "安装包提取失败", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.share_apk:
+                AppUtils.shareMsg(this, "test", "test", "test", appInfo.path);
+                break;
+            case R.id.uninstall_app:
+                Uri packageURI = Uri.parse("package:"+appInfo.packageName);
+                Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
+                startActivity(uninstallIntent);
+                break;
+            case R.id.open_app:
+                PackageManager packageManager = getPackageManager();
+                Intent intent;
+                intent =packageManager.getLaunchIntentForPackage(appInfo.packageName);
+                if(intent==null){
+                    System.out.println("APP not found!");
+                }
+                startActivity(intent);
+
+                break;
+        }
+        bottomSheetDialog.dismiss();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
