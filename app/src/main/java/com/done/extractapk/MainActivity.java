@@ -1,5 +1,6 @@
 package com.done.extractapk;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -31,8 +32,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
     public static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final int READ_AND_WRITE = 1;
 
     ArrayList<AppInfo> appList; //用来存储获取的应用信息数据
     List<PackageInfo> packages;
@@ -48,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mRecyclerView = (RecyclerView) findViewById(R.id.app_list);
+//        checkFilePermissions();
         getApplications();
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));//这里用线性显示 类似于listview
@@ -66,6 +73,19 @@ public class MainActivity extends AppCompatActivity {
         });
         mRecyclerView.setAdapter(appListAdapter);
 
+    }
+
+    @AfterPermissionGranted(READ_AND_WRITE)
+    private boolean checkFilePermissions() {
+        String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            return true;
+        }else {
+            // Do not have permissions, request them now
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_camera),
+                    READ_AND_WRITE, perms);
+        }
+        return false;
     }
 
     /**
@@ -120,7 +140,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View view) {
+        if (!checkFilePermissions()) {
+            return;
+        }
         switch (view.getId()) {
+
             case R.id.extract_apk:
                 String newPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + appInfo.appName + ".apk";
                 if (FileUtils.copyFile(appInfo.path,newPath)) {
@@ -173,4 +197,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Toast.makeText(this, "没有被授予权限", Toast.LENGTH_LONG).show();
+    }
 }

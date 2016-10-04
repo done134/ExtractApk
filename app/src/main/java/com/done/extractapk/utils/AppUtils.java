@@ -21,6 +21,7 @@ public class AppUtils {
             if (f != null && f.exists() && f.isFile()) {
                 Uri u = Uri.fromFile(f);
                 intent.putExtra(Intent.EXTRA_STREAM, u);
+                intent.setType("file/*");
             }
         }
         intent.putExtra(Intent.EXTRA_SUBJECT, msgTitle);

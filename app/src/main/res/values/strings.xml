@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">ExtractApk</string>
     <string name="action_settings">Settings</string>
+
+    <string name="rationale_camera">This app needs access to your camera so you can take pictures.</string>
 </resources>
